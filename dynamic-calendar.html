@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+    <title>Dynamic Calendar</title>
+    <style>
+         :root {
+            --green: #03dac6;
+            --background: #18191a;
+            --card: #242526;
+        }
+        
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            background: var(--background);
+            user-select: none;
+        }
+        
+        button {
+            outline: none;
+            border: none;
+        }
+        
+        #main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--background);
+            overflow: hidden;
+        }
+        
+        #calendar {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 50%;
+        }
+        
+        #monthyear {
+            padding: 2%;
+            height: auto;
+            background: var(--background);
+            color: var(--green);
+        }
+        
+        #monthyearbox {
+            font-size: 120%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #weekdays {
+            height: auto;
+            background: var(--background);
+            color: rgb(220, 230, 220);
+        }
+        
+        #weekdaysbox {
+            font-size: 90%;
+            display: flex;
+            flex-direction: row;
+        }
+        
+        #weekdaysbox div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2%;
+            width: 14.28%;
+        }
+        
+        #monthdays {
+            font-size: 100%;
+            align-items: stretch;
+            height: 100%;
+            color: rgb(220, 225, 220);
+        }
+        
+        #monthdaysbox {
+            display: flex;
+            flex-direction: row;
+            flex-flow: wrap;
+            height: 100%;
+        }
+        
+        #monthdaysbox div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--card);
+            width: 14.28%;
+            height: 16.66%;
+            border: 3px solid var(--background);
+            border-radius: 5px;
+        }
+        
+        #buttons {
+            height: auto;
+            background: var(--background);
+        }
+        
+        #buttonsbox {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        #buttonsbox button {
+            width: 14.28%;
+            font-size: 120%;
+            background: var(--background);
+            color: var(--green);
+            padding: 2%;
+        }
+        
+        #monthdaysbox .dark {
+            background: var(--background);
+        }
+        
+        #monthdaysbox .today {
+            color: var(--green);
+        }
+        
+        @media (orientation: landscape) {
+            #calendar {
+                height: 100%;
+                width: 50%;
+            }
+        }
+    </style>
+
+    <body>
+
+        <main id="main" style="visibility:hidden">
+            <div id="calendar">
+                <div id="monthyear">
+                    <div id="monthyearbox"></div>
+                </div>
+                <div id="weekdays">
+                    <div id="weekdaysbox">
+                        <div>
+                            sun
+                        </div>
+                        <div>
+                            mon
+                        </div>
+                        <div>
+                            tue
+                        </div>
+                        <div>
+                            wed
+                        </div>
+                        <div>
+                            thu
+                        </div>
+                        <div>
+                            fri
+                        </div>
+                        <div>
+                            sat
+                        </div>
+                    </div>
+                </div>
+                <div id="monthdays">
+                    <div id="monthdaysbox"></div>
+                </div>
+                <div id="buttons">
+                    <div id="buttonsbox">
+                        <button id="dateback"><</button>
+                        <button id="dateforward">></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            const main = document.getElementById("main")
+            let date = {};
+
+            const months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ];
+
+            window.addEventListener("load", () => {
+                setMain()
+                window.addEventListener("resize", () => {
+                    setMain()
+                })
+            })
+
+            function setMain() {
+                main.style.height = window.innerHeight + "px"
+                main.style.width = window.innerWidth + "px"
+            }
+            let {
+                year,
+                month,
+                today,
+                startMonth,
+                daysInMonth,
+                monthNumber
+            } = getTheDay()
+
+            const startDate = `${month} ${year}`
+
+            let calendarMonth = ""
+            let monthdays = "";
+            getCalendarMonth()
+
+            function getId(id) {
+                return document.getElementById(id)
+            }
+
+            function addToId(id, x) {
+                getId(id).innerHTML = x
+            }
+
+            function removeIdClass(id, css) {
+                getId(id).classList.remove(css)
+            }
+
+            function addClick(id, fn) {
+                return getId(id).addEventListener("click", fn);
+            }
+
+            function getCalendarMonth() {
+                monthdays = ""
+                calendarMonth = `${month} ${year}`
+                let day = 1;
+                for (let i = 0; i < 42; i++) {
+                    if (i < startMonth) {
+                        monthdays += `<div class="dark"></div>`
+                    }
+                    if (i == startMonth) {
+
+                        if (day == today && startDate == `${month} ${year}`) {
+                            alert(true)
+                            monthdays += `<div class="today">${day++}</div>`
+                        } else {
+                            monthdays += `<div>${day++}</div>`
+                        }
+                    }
+                    if (i > startMonth) {
+                        if (day <= daysInMonth) {
+                            monthdays += day == today && startDate == `${month} ${year}` ? `<div class="today">${day++}</div>` : `<div>${day++}</div>`;
+                        }
+                        if (day > daysInMonth) {
+                            monthdays += `<div class="dark"></div>`
+                        }
+                    }
+                }
+                return monthdays
+            }
+
+            function showCalendar() {
+                addToId("monthdaysbox", monthdays)
+                addToId("monthyearbox", calendarMonth)
+                addClick("buttonsbox", checkClick)
+            }
+
+            window.addEventListener("load", () => {
+                showCalendar()
+                getId("main").style.visibility = "visible"
+            })
+
+            function getMonth(x) {
+                const dateOject = getTheDay([year, monthNumber + x])
+                year = dateOject.year;
+                month = dateOject.month;
+                startMonth = dateOject.startMonth;
+                daysInMonth = dateOject.daysInMonth;
+                monthNumber = dateOject.monthNumber
+                getCalendarMonth()
+                showCalendar()
+            }
+
+            function checkClick(e) {
+                if (e.target.id.includes("date")) {
+                    if (e.target.id == "dateforward") {
+                        getMonth(1)
+                    }
+                    if (e.target.id == "dateback") {
+                        getMonth(-1)
+                    }
+                }
+            }
+
+            function getStartMonth() {
+                const start = new Date(date.getFullYear(), date.getMonth());
+                return start.getDay();
+            }
+
+            function getEndMonth() {
+                const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                return daysInMonth.getDate();
+            }
+
+            function getTheDay(dateArray) {
+                if (dateArray) {
+                    let [year, month] = dateArray;
+                    date = new Date(year, month);
+                } else {
+                    date = new Date();
+                }
+                const theDay = {
+                    year: date.getFullYear(),
+                    month: months[date.getMonth()],
+                    today: date.getDate(),
+                    monthNumber: date.getMonth(),
+                    startMonth: getStartMonth(),
+                    daysInMonth: getEndMonth(),
+                };
+                return theDay;
+            }
+        </script>
+
+    </body>
+
+</html>
